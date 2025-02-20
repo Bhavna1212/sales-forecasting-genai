@@ -1,9 +1,2 @@
 import joblib
-
-# Assuming `model` is your trained forecasting model
 joblib.dump(model, "sales_forecast_model.pkl")
-
-
-git add sales_forecast_model.pkl
-git commit -m "Add trained model"
-git push origin main
