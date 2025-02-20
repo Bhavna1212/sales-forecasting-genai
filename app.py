@@ -2,63 +2,47 @@ from flask import Flask, request, jsonify
 import pandas as pd
 import joblib
 import os
-import logging
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 app = Flask(__name__)
 
-# Model file path
+# Check if model file exists
 model_path = "sales_forecast_model.pkl"
-
-# Check if model file exists and load it
 if not os.path.exists(model_path):
-    logging.error(f"Model file {model_path} not found!")
     raise FileNotFoundError(f"Model file {model_path} not found!")
 
-try:
-    model = joblib.load(model_path)
-    logging.info("Model loaded successfully.")
-except Exception as e:
-    logging.error(f"Error loading model: {str(e)}")
-    raise e
+# Load trained model
+model = joblib.load(model_path)
 
 @app.route("/", methods=["GET"])
 def home():
-    logging.info("Home route accessed.")
     return jsonify({"message": "Generative AI Sales Forecast API is Running!"})
 
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
-        logging.info("Received prediction request.")
-
-        # Get JSON request data
-        data = request.json
-        logging.info(f"Request Data: {data}")
-
+        # Expecting JSON input with 'date' field
+        data = request.get_json()
         if not data or "date" not in data:
-            logging.warning("Missing 'date' field in request.")
-            return jsonify({"error": "Missing 'date' field"}), 400
+            return jsonify({"error": "Missing 'date' field in JSON request"}), 400
 
-        # Convert date input
-        date_input = data.get("date")
-        future_df = pd.DataFrame({"ds": [pd.to_datetime(date_input)]})
-        logging.info(f"Input DataFrame: {future_df}")
+        try:
+            date_input = pd.to_datetime(data["date"])  # Convert to datetime
+        except Exception:
+            return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
 
-        # Predict
+        # Create DataFrame for prediction
+        future_df = pd.DataFrame({"ds": [date_input]})
         forecast = model.predict(future_df)
+
+        # Extract forecast values
         prediction = forecast[["ds", "yhat", "yhat_lower", "yhat_upper"]].to_dict(orient="records")
 
-        logging.info(f"Prediction: {prediction}")
         return jsonify({"forecast": prediction})
 
     except Exception as e:
-        logging.error(f"Error during prediction: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
+# Render automatically sets PORT, so no need to run Flask manually
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    logging.info(f"Starting Flask app on port {port}...")
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port)
