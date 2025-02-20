@@ -132,3 +132,9 @@ def predict():
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
 
+
+import joblib
+
+# Assuming `model` is your trained forecasting model
+joblib.dump(model, "sales_forecast_model.pkl")
+
