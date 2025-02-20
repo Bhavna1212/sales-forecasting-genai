@@ -8,3 +8,4 @@ tensorflow
 torch
 transformers
 prophet
+cmdstanpy
