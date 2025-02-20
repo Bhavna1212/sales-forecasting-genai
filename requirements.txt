@@ -1,0 +1,11 @@
+flask
+gunicorn
+nginx
+pandas
+numpy
+scikit-learn
+matplotlib
+tensorflow
+torch
+transformers
+prophet
