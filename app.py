@@ -2,6 +2,9 @@ from flask import Flask, request, jsonify
 import pandas as pd
 import numpy as np
 import torch
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # Disable GPU, force CPU
+import tensorflow as tf
 from transformers import pipeline
 from prophet import Prophet
 from sklearn.preprocessing import MinMaxScaler
