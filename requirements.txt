@@ -4,7 +4,7 @@ pandas
 numpy
 scikit-learn
 matplotlib
-tensorflow
+tensorflow-cpu
 torch
 transformers
 prophet
